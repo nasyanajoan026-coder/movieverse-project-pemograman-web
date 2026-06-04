@@ -117,13 +117,13 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ─── NAVBAR ─────────────────────────────────────────── */
 .navbar {
-  position: fixed;
+  position: sticky;
   top: 0; left: 0; right: 0;
   z-index: 1000;
   height: var(--nav-h);
-  background: rgba(8, 8, 16, .85);
+  background: #0d0d0d;
   backdrop-filter: blur(12px) saturate(180%);
-  border-bottom: 1px solid var(--border);
+  border-bottom: 0.5px solid #222;
   transition: background var(--t-mid), box-shadow var(--t-mid);
 }
 .navbar.scrolled {
