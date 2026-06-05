@@ -6,9 +6,10 @@ require_once __DIR__ . '/includes/helpers.php';
 requireLogin();
 
 $userId    = currentUser()['id'];
-$favorites = getUserFavorites($userId);
+$favorites = getUserFavorites($pdo, $userId);
 
-include __DIR__ . '/includes/header.php';
+$pageTitle = 'My Favorites';
+require_once __DIR__ . '/includes/header.php';
 ?>
 
 <main class="page-main">
@@ -28,25 +29,27 @@ include __DIR__ . '/includes/header.php';
         <div class="empty-icon">🎬</div>
         <h2>No favorites yet</h2>
         <p>Start exploring films and hit the heart button to save them here.</p>
-        <a href="/movies.php" class="btn btn-primary">Browse Movies</a>
+        <a href="<?= BASE_URL ?>/movies.php" class="btn btn-primary">Browse Movies</a>
       </div>
     <?php else: ?>
-      <div class="movie-grid">
+      <div class="movies-grid stagger">
         <?php foreach ($favorites as $movie): ?>
           <div class="movie-card">
-            <a href="/movie.php?id=<?= $movie['id'] ?>" class="card-poster-link">
-              <?= posterImg($movie['poster_url'], $movie['title'], 'card-poster') ?>
-              <div class="card-overlay">
-                <span class="card-cta">View Details</span>
+            <a href="<?= BASE_URL ?>/movie.php?id=<?= $movie['id'] ?>">
+              <div class="movie-poster">
+                <?= posterImg($movie['poster_url'], $movie['title'], 'poster-img') ?>
+                <div class="movie-overlay">
+                  <span class="btn btn-primary btn-sm">View Details</span>
+                </div>
               </div>
             </a>
-            <div class="card-body">
-              <a href="/movie.php?id=<?= $movie['id'] ?>" class="card-title"><?= e($movie['title']) ?></a>
-              <div class="card-meta">
-                <span class="card-year"><?= $movie['year'] ?></span>
+            <div class="movie-info">
+              <a href="<?= BASE_URL ?>/movie.php?id=<?= $movie['id'] ?>" class="movie-title" title="<?= e($movie['title']) ?>"><?= e($movie['title']) ?></a>
+              <div class="movie-meta">
+                <span><?= e((string)$movie['year']) ?></span>
                 <?php if ($movie['avg_rating']): ?>
                   <span class="rating-badge <?= ratingColor($movie['avg_rating']) ?>">
-                    <?= number_format($movie['avg_rating'], 1) ?>
+                    ★ <?= number_format($movie['avg_rating'], 1) ?>
                   </span>
                 <?php endif; ?>
               </div>
@@ -56,7 +59,7 @@ include __DIR__ . '/includes/header.php';
                   title="Remove from favorites">
                   ❤
                 </button>
-                <a href="/movie.php?id=<?= $movie['id'] ?>" class="btn btn-ghost btn-sm">Details</a>
+                <a href="<?= BASE_URL ?>/movie.php?id=<?= $movie['id'] ?>" class="btn btn-ghost btn-sm">Details</a>
               </div>
             </div>
           </div>
@@ -67,4 +70,5 @@ include __DIR__ . '/includes/header.php';
   </div>
 </main>
 
-<?php include __DIR__ . '/includes/footer.php'; ?>
+<?php require_once __DIR__ . '/includes/footer.php'; ?>
+

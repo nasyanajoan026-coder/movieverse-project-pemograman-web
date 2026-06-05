@@ -254,10 +254,10 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `bio`, `avatar_url`, `created_at`) VALUES
 (1, 'admin', 'admin@movieverse.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'admin', NULL, NULL, '2026-06-04 06:58:05'),
-(2, 'cinephile99', 'cine@example.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'Passionate film lover. I watch everything from arthouse to blockbusters.', NULL, '2026-06-04 06:58:05'),
-(3, 'filmgeek', 'geek@example.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'Sci-fi and thriller enthusiast. Horror fan on weekends.', NULL, '2026-06-04 06:58:05'),
-(4, 'movienerd', 'nerd@example.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'Watched 500+ films and counting.', NULL, '2026-06-04 06:58:05'),
-(5, 'reelcritic', 'critic@example.com', '$2y$12$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'Film critic and writer. Specializing in drama and world cinema.', NULL, '2026-06-04 06:58:05');
+(2, 'cinephile99', 'cine@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'Passionate film lover. I watch everything from arthouse to blockbusters.', NULL, '2026-06-04 06:58:05'),
+(3, 'filmgeek', 'geek@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'Sci-fi and thriller enthusiast. Horror fan on weekends.', NULL, '2026-06-04 06:58:05'),
+(4, 'movienerd', 'nerd@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'Watched 500+ films and counting.', NULL, '2026-06-04 06:58:05'),
+(5, 'reelcritic', 'critic@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'Film critic and writer. Specializing in drama and world cinema.', NULL, '2026-06-04 06:58:05');
 
 -- --------------------------------------------------------
 

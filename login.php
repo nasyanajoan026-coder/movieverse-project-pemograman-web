@@ -93,9 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <p class="auth-footer">Don't have an account? <a href="<?= BASE_URL ?>/register.php">Sign up free</a></p>
-        <p style="text-align:center;margin-top:var(--s-3);font-size:.8125rem;color:var(--text-muted);">
-            Demo: <strong>admin</strong> / <strong>password</strong>
-        </p>
     </div>
 </div>
 <script src="<?= BASE_URL ?>/assets/js/app.js"></script>

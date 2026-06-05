@@ -5,7 +5,6 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 requireAdmin();
 
-$pdo    = getDb();
 $errors = [];
 $movie  = null;
 $isEdit = false;
@@ -25,62 +24,59 @@ if ($id > 0) {
 }
 
 // All genres for checkbox list
-$allGenres = getGenres();
+$allGenres = getGenres($pdo);
 
 // Handle form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!verifyCsrf($_POST['csrf_token'] ?? '')) {
-        $errors[] = 'Invalid CSRF token.';
-    } else {
-        $title       = trim($_POST['title'] ?? '');
-        $year        = (int)($_POST['year'] ?? 0);
-        $director    = trim($_POST['director'] ?? '');
-        $duration    = (int)($_POST['duration'] ?? 0);
-        $synopsis    = trim($_POST['synopsis'] ?? '');
-        $poster_url  = trim($_POST['poster_url'] ?? '');
-        $backdrop_url= trim($_POST['backdrop_url'] ?? '');
-        $trailer_url = trim($_POST['trailer_url'] ?? '');
-        $genreIds    = array_map('intval', $_POST['genre_ids'] ?? []);
+    verifyCsrf();
 
-        // Validation
-        if (strlen($title) < 1)                    $errors[] = 'Title is required.';
-        if ($year < 1888 || $year > date('Y') + 2) $errors[] = 'Please enter a valid year.';
-        if ($synopsis === '')                        $errors[] = 'Synopsis is required.';
-        if (empty($genreIds))                        $errors[] = 'Please select at least one genre.';
+    $title       = trim($_POST['title'] ?? '');
+    $year        = (int)($_POST['year'] ?? 0);
+    $director    = trim($_POST['director'] ?? '');
+    $duration    = (int)($_POST['duration_min'] ?? $_POST['duration'] ?? 0);
+    $synopsis    = trim($_POST['synopsis'] ?? '');
+    $poster_url  = trim($_POST['poster_url'] ?? '');
+    $trailer_url = trim($_POST['trailer_url'] ?? '');
+    $genreIds    = array_map('intval', $_POST['genre_ids'] ?? []);
 
-        if (empty($errors)) {
-            if ($isEdit) {
-                $stmt = $pdo->prepare("
-                    UPDATE movies SET title=?, year=?, director=?, duration_min=?, synopsis=?,
-                                      poster_url=?, backdrop_url=?, trailer_url=?
-                    WHERE id=?
-                ");
-                $stmt->execute([$title, $year, $director ?: null, $duration ?: null, $synopsis,
-                                $poster_url ?: null, $backdrop_url ?: null, $trailer_url ?: null, $id]);
-                $movieId = $id;
-            } else {
-                $stmt = $pdo->prepare("
-                    INSERT INTO movies (title, year, director, duration_min, synopsis, poster_url, backdrop_url, trailer_url)
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-                ");
-                $stmt->execute([$title, $year, $director ?: null, $duration ?: null, $synopsis,
-                                $poster_url ?: null, $backdrop_url ?: null, $trailer_url ?: null]);
-                $movieId = (int)$pdo->lastInsertId();
-            }
+    // Validation
+    if (strlen($title) < 1)                    $errors[] = 'Title is required.';
+    if ($year < 1888 || $year > date('Y') + 2) $errors[] = 'Please enter a valid year.';
+    if ($synopsis === '')                        $errors[] = 'Synopsis is required.';
+    if (empty($genreIds))                        $errors[] = 'Please select at least one genre.';
 
-            // Update genres
-            $pdo->prepare("DELETE FROM movie_genres WHERE movie_id = ?")->execute([$movieId]);
-            $mgStmt = $pdo->prepare("INSERT INTO movie_genres (movie_id, genre_id) VALUES (?, ?)");
-            foreach ($genreIds as $gid) { $mgStmt->execute([$movieId, $gid]); }
-
-            setFlash('success', $isEdit ? 'Film updated successfully.' : 'Film added successfully.');
-            redirect('/admin/movies.php');
+    if (empty($errors)) {
+        if ($isEdit) {
+            $stmt = $pdo->prepare("
+                UPDATE movies SET title=?, year=?, director=?, duration=?, synopsis=?,
+                                  poster_url=?, trailer_url=?
+                WHERE id=?
+            ");
+            $stmt->execute([$title, $year, $director ?: null, $duration ?: null, $synopsis,
+                            $poster_url ?: null, $trailer_url ?: null, $id]);
+            $movieId = $id;
+        } else {
+            $stmt = $pdo->prepare("
+                INSERT INTO movies (title, year, director, duration, synopsis, poster_url, trailer_url)
+                VALUES (?, ?, ?, ?, ?, ?, ?)
+            ");
+            $stmt->execute([$title, $year, $director ?: null, $duration ?: null, $synopsis,
+                            $poster_url ?: null, $trailer_url ?: null]);
+            $movieId = (int)$pdo->lastInsertId();
         }
 
-        // Re-populate for re-display
-        $movie = compact('title','year','director','duration','synopsis','poster_url','backdrop_url','trailer_url');
-        $movie['genre_ids'] = $genreIds;
+        // Update genres
+        $pdo->prepare("DELETE FROM movie_genres WHERE movie_id = ?")->execute([$movieId]);
+        $mgStmt = $pdo->prepare("INSERT INTO movie_genres (movie_id, genre_id) VALUES (?, ?)");
+        foreach ($genreIds as $gid) { $mgStmt->execute([$movieId, $gid]); }
+
+        setFlash('success', $isEdit ? 'Film updated successfully.' : 'Film added successfully.');
+        redirect('/admin/movies.php');
     }
+
+    // Re-populate for re-display
+    $movie = compact('title','year','director','duration','synopsis','poster_url','trailer_url');
+    $movie['genre_ids'] = $genreIds;
 }
 
 include __DIR__ . '/../includes/header.php';
@@ -93,7 +89,12 @@ include __DIR__ . '/../includes/header.php';
     <div class="admin-content">
       <div class="admin-top">
         <h1 class="admin-page-title"><?= $isEdit ? 'Edit Film' : 'Add New Film' ?></h1>
-        <a href="/admin/movies.php" class="btn btn-ghost">← Back to Films</a>
+        <div style="display:flex;gap:var(--s-3);">
+          <?php if (!$isEdit): ?>
+            <button type="button" class="btn btn-outline-gold btn-sm" onclick="autofillDemo()">⚡ Demo Autofill</button>
+          <?php endif; ?>
+          <a href="<?= BASE_URL ?>/admin/movies.php" class="btn btn-ghost">← Back to Films</a>
+        </div>
       </div>
 
       <?php if ($errors): ?>
@@ -151,14 +152,6 @@ include __DIR__ . '/../includes/header.php';
           </div>
 
           <div class="form-group">
-            <label for="backdrop_url">Backdrop Image URL</label>
-            <input type="url" id="backdrop_url" name="backdrop_url"
-              value="<?= e($movie['backdrop_url'] ?? '') ?>"
-              placeholder="https://image.tmdb.org/…">
-            <small>Wide landscape image shown on the movie detail page hero</small>
-          </div>
-
-          <div class="form-group">
             <label for="trailer_url">Trailer URL</label>
             <input type="url" id="trailer_url" name="trailer_url"
               value="<?= e($movie['trailer_url'] ?? '') ?>"
@@ -185,7 +178,7 @@ include __DIR__ . '/../includes/header.php';
             <button type="submit" class="btn btn-primary">
               <?= $isEdit ? 'Save Changes' : 'Add Film' ?>
             </button>
-            <a href="/admin/movies.php" class="btn btn-ghost">Cancel</a>
+            <a href="<?= BASE_URL ?>/admin/movies.php" class="btn btn-ghost">Cancel</a>
           </div>
         </form>
 
@@ -207,7 +200,7 @@ include __DIR__ . '/../includes/header.php';
 
           <?php if ($isEdit): ?>
           <div class="form-sidebar-links">
-            <a href="/movie.php?id=<?= $id ?>" target="_blank" class="btn btn-ghost btn-sm">View Film Page</a>
+            <a href="<?= BASE_URL ?>/movie.php?id=<?= $id ?>" target="_blank" class="btn btn-ghost btn-sm">View Film Page</a>
           </div>
           <?php endif; ?>
         </div>
@@ -230,6 +223,28 @@ function previewPoster(url) {
         img.style.display = 'none';
         if (ph) ph.style.display = 'flex';
     }
+}
+
+function autofillDemo() {
+    document.getElementById('title').value = 'Avatar: The Way of Water';
+    document.getElementById('year').value = '2022';
+    document.getElementById('duration').value = '192';
+    document.getElementById('director').value = 'James Cameron';
+    document.getElementById('synopsis').value = 'Jake Sully lives with his newfound family formed on the extrasolar moon Pandora. Once a familiar threat returns to finish what was previously started, Jake must work with Neytiri and the army of the Na\'vi race to protect their home.';
+    document.getElementById('poster_url').value = 'https://image.tmdb.org/t/p/w500/t6HI54nsjTX5WagEhTMXW7qyA8B.jpg';
+    document.getElementById('trailer_url').value = 'https://www.youtube.com/watch?v=d9MyW72ELq0';
+    
+    // Trigger preview
+    previewPoster('https://image.tmdb.org/t/p/w500/t6HI54nsjTX5WagEhTMXW7qyA8B.jpg');
+    
+    // Select Action, Sci-Fi, Adventure genres
+    const checkboxes = document.querySelectorAll('.genre-checkbox-grid input[type="checkbox"]');
+    checkboxes.forEach(cb => {
+        if (cb.value == '1' || cb.value == '5' || cb.value == '12') {
+            cb.checked = true;
+            cb.closest('label').classList.add('checked');
+        }
+    });
 }
 </script>
 

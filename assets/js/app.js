@@ -110,31 +110,73 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // ── FAVORITE TOGGLE (AJAX) ────────────────────────
-    const favBtn = document.getElementById('favBtn');
-    if (favBtn) {
-        favBtn.addEventListener('click', async () => {
-            const movieId = favBtn.dataset.movieId;
-            favBtn.disabled = true;
-            try {
-                const res = await fetch('/api/favorite.php', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-                    body: `movie_id=${movieId}&csrf_token=${encodeURIComponent(document.getElementById('csrfToken')?.value || '')}`
-                });
-                const data = await res.json();
-                if (data.success) {
-                    favBtn.classList.toggle('active', data.favorited);
-                    const label = favBtn.querySelector('.fav-label');
-                    if (label) label.textContent = data.favorited ? 'Favorited' : 'Add to Favorites';
-                    showToast(data.favorited ? '❤️ Added to favorites' : '💔 Removed from favorites', 'success');
+    document.addEventListener('click', async (e) => {
+        const btn = e.target.closest('#favBtn, .fav-btn');
+        if (!btn) return;
+
+        e.preventDefault();
+        const movieId = btn.dataset.movieId;
+        btn.disabled = true;
+
+        // Find CSRF token (if page has one)
+        const csrfTokenEl = document.getElementById('csrfToken');
+        const csrfToken = csrfTokenEl ? csrfTokenEl.value : '';
+
+        try {
+            const res = await fetch('/movieverse/api/favorite.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: `movie_id=${movieId}&csrf_token=${encodeURIComponent(csrfToken)}`
+            });
+            const data = await res.json();
+            if (data.success) {
+                btn.classList.toggle('active', data.favorited);
+
+                // If it's a detail page button, update icon fill and label text
+                const icon = btn.querySelector('svg');
+                if (icon) {
+                    icon.setAttribute('fill', data.favorited ? 'currentColor' : 'none');
                 }
-            } catch {
+                const label = btn.querySelector('.fav-label');
+                if (label) {
+                    label.textContent = data.favorited ? 'Favorited' : 'Add to Favorites';
+                }
+
+                // If we are on favorites.php and the movie is unfavorited, remove the card dynamically
+                if (window.location.pathname.includes('favorites.php') && !data.favorited) {
+                    const card = btn.closest('.movie-card');
+                    if (card) {
+                        card.style.opacity = '0';
+                        card.style.transform = 'scale(0.9)';
+                        card.style.transition = 'all 0.3s ease';
+                        setTimeout(() => {
+                            card.remove();
+                            // Update count text
+                            const savedCountEl = document.querySelector('.page-subtitle');
+                            if (savedCountEl) {
+                                const currentCount = document.querySelectorAll('.movie-card').length;
+                                savedCountEl.textContent = `${currentCount} film${currentCount !== 1 ? 's' : ''} saved`;
+                                if (currentCount === 0) {
+                                    window.location.reload(); // Reload to show empty state
+                                }
+                            }
+                        }, 300);
+                    }
+                }
+
+                showToast(data.favorited ? '❤️ Added to favorites' : '💔 Removed from favorites', 'success');
+            } else {
                 showToast('Something went wrong', 'error');
-            } finally {
-                favBtn.disabled = false;
             }
-        });
-    }
+        } catch (err) {
+            console.error('Fav error:', err);
+            showToast('Something went wrong', 'error');
+        } finally {
+            btn.disabled = false;
+        }
+    });
+
+    
 
     // ── REVIEW DELETE (AJAX) ──────────────────────────
     document.querySelectorAll('[data-delete-review]').forEach(btn => {
@@ -149,15 +191,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 const data = await res.json();
                 if (data.success) {
-                    const card = btn.closest('.review-card');
-                    card?.remove();
+                    document.getElementById(`review-${reviewId}`)?.remove();
                     showToast('Review deleted', 'success');
-                    const count = document.getElementById('reviewCount');
-                    if (count) count.textContent = parseInt(count.textContent) - 1;
                 } else {
-                    showToast(data.message || 'Error', 'error');
+                    showToast(data.message || 'Something went wrong', 'error');
                 }
-            } catch {
+            } catch (e) {
                 showToast('Something went wrong', 'error');
             }
         });
@@ -232,6 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    
     // ── TOAST NOTIFICATION ───────────────────────────
     window.showToast = (message, type = 'info') => {
         const toast = document.createElement('div');

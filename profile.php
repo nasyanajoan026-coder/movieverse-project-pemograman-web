@@ -10,17 +10,17 @@ if ($profileId <= 0) {
     $profileId = currentUser()['id'];
 }
 
-$profile = getUserProfile($profileId);
+$profile = getUserProfile($pdo, $profileId);
 if (!$profile) {
     setFlash('error', 'User not found.');
     redirect('/index.php');
 }
 
-$reviews   = getUserReviews($profileId);
-$favorites = getUserFavorites($profileId);
+$reviews   = getUserReviews($pdo, $profileId);
+$favorites = getUserFavorites($pdo, $profileId);
 
 // Rating breakdown for this user
-$pdo = getDb();
+
 $stmt = $pdo->prepare("SELECT rating, COUNT(*) as cnt FROM reviews WHERE user_id = ? GROUP BY rating ORDER BY rating DESC");
 $stmt->execute([$profileId]);
 $ratingBreakdown = $stmt->fetchAll(PDO::FETCH_KEY_PAIR);
@@ -56,11 +56,11 @@ include __DIR__ . '/includes/header.php';
               <span class="stat-label">Reviews</span>
             </div>
             <div class="profile-stat">
-              <span class="stat-num"><?= $profile['fav_count'] ?></span>
+              <span class="stat-num"><?= $profile['favorite_count'] ?></span>
               <span class="stat-label">Favorites</span>
             </div>
             <div class="profile-stat">
-              <span class="stat-num"><?= $profile['avg_rating'] ? number_format($profile['avg_rating'], 1) : '—' ?></span>
+              <span class="stat-num"><?= $profile['avg_rating_given'] ? number_format($profile['avg_rating_given'], 1) : '—' ?></span>
               <span class="stat-label">Avg Rating</span>
             </div>
           </div>

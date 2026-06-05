@@ -1548,3 +1548,103 @@ select.form-control { cursor: pointer; }
   .profile-header { flex-direction: column; align-items: center; text-align: center; }
   .profile-stats-row { justify-content: center; }
 }
+
+/* =====================================================
+   FOOTER STYLING
+   ===================================================== */
+.footer {
+  background-color: var(--bg-surface);
+  border-top: 1px solid var(--border);
+  padding: var(--s-16) 0 var(--s-8);
+  margin-top: var(--s-16);
+  color: var(--text-secondary);
+}
+
+.footer-container {
+  max-width: var(--max-w);
+  margin: 0 auto;
+  padding: 0 var(--s-6);
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-10);
+  flex-wrap: wrap;
+}
+
+.footer-brand {
+  flex: 1 1 300px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+.footer-brand .nav-logo {
+  font-size: 1.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-3);
+  color: var(--accent);
+}
+
+.footer-tagline {
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+  max-width: 280px;
+  line-height: 1.6;
+}
+
+.footer-links {
+  display: flex;
+  gap: var(--s-16);
+  flex-wrap: wrap;
+}
+
+.footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.footer-col h4 {
+  font-family: var(--font-brand);
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: var(--s-2);
+}
+
+.footer-col a {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  transition: color var(--t-fast);
+}
+
+.footer-col a:hover {
+  color: var(--accent);
+}
+
+.footer-bottom {
+  max-width: var(--max-w);
+  margin: var(--s-12) auto 0;
+  padding: var(--s-6) var(--s-6) 0;
+  border-top: 1px solid var(--border);
+  text-align: center;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+/* Responsive adjustments for footer */
+@media (max-width: 768px) {
+  .footer {
+    padding: var(--s-10) 0 var(--s-6);
+  }
+  .footer-container {
+    flex-direction: column;
+    gap: var(--s-8);
+  }
+  .footer-links {
+    gap: var(--s-10) var(--s-16);
+  }
+}
+

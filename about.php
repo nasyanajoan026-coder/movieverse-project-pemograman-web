@@ -7,28 +7,28 @@ require_once __DIR__ . '/includes/helpers.php';
 $team = [
     [
         'name'    => 'Claudia J. Bella',
-        'role'    => 'Project Lead & UI/UX Designer',
+        'role'    => 'Frontend Developer & UI/UX Designer',
         'nim'     => '240211060083',
-        'photo'   => '',   // leave blank for avatar fallback
-        'bio'     => 'Responsible for database architecture, PHP backend logic, and server configuration.',
-        'initials'=> 'AP',
+        'photo'   => BASE_URL . '/assets/img/clau.jpeg',   // leave blank for avatar fallback
+        'bio'     => 'Responsible for frontend architecture, CSS components, and responsive layouts.',
+        'initials'=> 'CB',
     ],
     [
         'name'    => 'Nasya G. Najoan',
-        'role'    => 'Backend Developer & Data Entry',
+        'role'    => 'Backend Developer & UI/UX Designer',
         'nim'     => '240211060099',
-        'photo'   => '',
-        'bio'     => 'Crafted the UI/UX design system, CSS components, and responsive layouts.',
-        'initials'=> 'BS',
+        'photo'   => BASE_URL . '/assets/img/nasya.jpeg',
+        'bio'     => 'Crafted the UI/UX design system, Database Handler, and server configuration. ',
+        'initials'=> 'NN',
     ],
     
     [
-        'name'    => 'Denny Wijaya',
+        'name'    => 'Isabel S. C. D. Indo',
         'role'    => 'Backend Developer & Data Entry',
-        'nim'     => '230111000004',
-        'photo'   => '',
+        'nim'     => '240211060005',
+        'photo'   => BASE_URL . '/assets/img/isabel.jpeg',
         'bio'     => 'Built the statistics module, handled seed data, and assisted with deployment.',
-        'initials'=> 'DW',
+        'initials'=> 'II',
     ],
 ];
 

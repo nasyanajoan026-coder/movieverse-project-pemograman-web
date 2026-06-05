@@ -302,7 +302,10 @@ function renderStars(float $rating): string {
 /**
  * Get rating color class based on score
  */
-function ratingColor(float $rating): string {
+
+
+function ratingColor(?float $rating): string {
+    if ($rating === null) return 'rating-low';
     if ($rating >= 8) return 'rating-gold';
     if ($rating >= 6) return 'rating-good';
     if ($rating >= 4) return 'rating-mid';
@@ -312,7 +315,8 @@ function ratingColor(float $rating): string {
 /**
  * Truncate text
  */
-function truncate(string $text, int $length = 150): string {
+function truncate(?string $text, int $length = 150): string {
+    $text = $text ?? '';
     if (strlen($text) <= $length) return $text;
     return rtrim(substr($text, 0, $length)) . '…';
 }
@@ -332,7 +336,7 @@ function timeAgo(string $datetime): string {
 /**
  * Poster fallback: returns image tag or placeholder div
  */
-function posterImg(string $url, string $title, string $classes = ''): string {
+function posterImg(?string $url, string $title, string $classes = ''): string {
     if ($url) {
         return '<img src="' . e($url) . '" alt="' . e($title) . '" class="' . $classes . '" loading="lazy" onerror="this.parentElement.innerHTML=\'<div class=poster-ph>' . e(mb_substr($title, 0, 1)) . '</div>\'">';
     }

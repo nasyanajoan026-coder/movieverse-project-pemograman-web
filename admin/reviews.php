@@ -5,18 +5,13 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 requireAdmin();
 
-$pdo = getDb();
-
 // Handle delete
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
-    if (!verifyCsrf($_POST['csrf_token'] ?? '')) {
-        setFlash('error', 'Invalid CSRF token.');
-    } else {
-        $rid = (int)($_POST['review_id'] ?? 0);
-        if ($rid > 0) {
-            $pdo->prepare("DELETE FROM reviews WHERE id = ?")->execute([$rid]);
-            setFlash('success', 'Review deleted.');
-        }
+    verifyCsrf();
+    $rid = (int)($_POST['review_id'] ?? 0);
+    if ($rid > 0) {
+        $pdo->prepare("DELETE FROM reviews WHERE id = ?")->execute([$rid]);
+        setFlash('success', 'Review deleted.');
     }
     redirect('/admin/reviews.php' . ($_GET['page'] ? '?page='.(int)$_GET['page'] : ''));
 }
@@ -91,7 +86,7 @@ include __DIR__ . '/../includes/header.php';
         </select>
         <button type="submit" class="btn btn-ghost">Filter</button>
         <?php if ($q || $rating): ?>
-          <a href="/admin/reviews.php" class="btn btn-ghost">Clear</a>
+          <a href="<?= BASE_URL ?>/admin/reviews.php" class="btn btn-ghost">Clear</a>
         <?php endif; ?>
       </form>
 
@@ -113,8 +108,8 @@ include __DIR__ . '/../includes/header.php';
             <?php else: ?>
               <?php foreach ($reviews as $r): ?>
               <tr>
-                <td><a href="/profile.php?id=<?= $r['user_id'] ?>"><?= e($r['username']) ?></a></td>
-                <td><a href="/movie.php?id=<?= $r['movie_id'] ?>" target="_blank"><?= e($r['movie_title']) ?></a></td>
+                 <td><a href="<?= BASE_URL ?>/profile.php?id=<?= $r['user_id'] ?>"><?= e($r['username']) ?></a></td>
+                 <td><a href="<?= BASE_URL ?>/movie.php?id=<?= $r['movie_id'] ?>" target="_blank"><?= e($r['movie_title']) ?></a></td>
                 <td><span class="rating-badge <?= ratingColor($r['rating']) ?>"><?= $r['rating'] ?></span></td>
                 <td class="review-cell">
                   <?php if ($r['review_text']): ?>

@@ -5,58 +5,54 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 requireAdmin();
 
-$pdo    = getDb();
 $errors = [];
 $editGenre = null;
 
 // Handle POST actions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (!verifyCsrf($_POST['csrf_token'] ?? '')) {
-        $errors[] = 'Invalid CSRF token.';
-    } else {
-        $action = $_POST['action'] ?? '';
+    verifyCsrf();
+    $action = $_POST['action'] ?? '';
 
-        // Add
-        if ($action === 'add') {
-            $name = trim($_POST['name'] ?? '');
-            if ($name === '') {
-                $errors[] = 'Genre name is required.';
+    // Add
+    if ($action === 'add') {
+        $name = trim($_POST['name'] ?? '');
+        if ($name === '') {
+            $errors[] = 'Genre name is required.';
+        } else {
+            $exists = $pdo->prepare("SELECT id FROM genres WHERE name = ?");
+            $exists->execute([$name]);
+            if ($exists->fetch()) {
+                $errors[] = 'A genre with that name already exists.';
             } else {
-                $exists = $pdo->prepare("SELECT id FROM genres WHERE name = ?");
-                $exists->execute([$name]);
-                if ($exists->fetch()) {
-                    $errors[] = 'A genre with that name already exists.';
-                } else {
-                    $pdo->prepare("INSERT INTO genres (name) VALUES (?)")->execute([$name]);
-                    setFlash('success', "Genre \"$name\" added.");
-                    redirect('/admin/genres.php');
-                }
-            }
-        }
-
-        // Update
-        if ($action === 'update') {
-            $gid  = (int)($_POST['genre_id'] ?? 0);
-            $name = trim($_POST['name'] ?? '');
-            if ($name === '' || $gid <= 0) {
-                $errors[] = 'Name is required.';
-            } else {
-                $pdo->prepare("UPDATE genres SET name = ? WHERE id = ?")->execute([$name, $gid]);
-                setFlash('success', 'Genre updated.');
+                $pdo->prepare("INSERT INTO genres (name) VALUES (?)")->execute([$name]);
+                setFlash('success', "Genre \"$name\" added.");
                 redirect('/admin/genres.php');
             }
         }
+    }
 
-        // Delete
-        if ($action === 'delete') {
-            $gid = (int)($_POST['genre_id'] ?? 0);
-            if ($gid > 0) {
-                // Remove genre associations
-                $pdo->prepare("DELETE FROM movie_genres WHERE genre_id = ?")->execute([$gid]);
-                $pdo->prepare("DELETE FROM genres WHERE id = ?")->execute([$gid]);
-                setFlash('success', 'Genre deleted.');
-                redirect('/admin/genres.php');
-            }
+    // Update
+    if ($action === 'update') {
+        $gid  = (int)($_POST['genre_id'] ?? 0);
+        $name = trim($_POST['name'] ?? '');
+        if ($name === '' || $gid <= 0) {
+            $errors[] = 'Name is required.';
+        } else {
+            $pdo->prepare("UPDATE genres SET name = ? WHERE id = ?")->execute([$name, $gid]);
+            setFlash('success', 'Genre updated.');
+            redirect('/admin/genres.php');
+        }
+    }
+
+    // Delete
+    if ($action === 'delete') {
+        $gid = (int)($_POST['genre_id'] ?? 0);
+        if ($gid > 0) {
+            // Remove genre associations
+            $pdo->prepare("DELETE FROM movie_genres WHERE genre_id = ?")->execute([$gid]);
+            $pdo->prepare("DELETE FROM genres WHERE id = ?")->execute([$gid]);
+            setFlash('success', 'Genre deleted.');
+            redirect('/admin/genres.php');
         }
     }
 }
@@ -115,7 +111,7 @@ include __DIR__ . '/../includes/header.php';
                     <td><?= e($g['name']) ?></td>
                     <td><?= $g['movie_count'] ?></td>
                     <td class="action-cell">
-                      <a href="/admin/genres.php?edit=<?= $g['id'] ?>" class="btn btn-ghost btn-sm">Edit</a>
+                      <a href="<?= BASE_URL ?>/admin/genres.php?edit=<?= $g['id'] ?>" class="btn btn-ghost btn-sm">Edit</a>
                       <?php if ($g['movie_count'] == 0): ?>
                       <form method="POST" class="inline-form">
                         <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
@@ -154,7 +150,7 @@ include __DIR__ . '/../includes/header.php';
               </div>
               <div class="form-actions">
                 <button type="submit" class="btn btn-primary">Save</button>
-                <a href="/admin/genres.php" class="btn btn-ghost">Cancel</a>
+                 <a href="<?= BASE_URL ?>/admin/genres.php" class="btn btn-ghost">Cancel</a>
               </div>
             </form>
           </section>

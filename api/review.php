@@ -30,8 +30,6 @@ if ($reviewId <= 0) {
     echo json_encode(['error' => 'Invalid review_id']);
     exit;
 }
-
-$pdo  = getDb();
 $user = currentUser();
 
 // Fetch review

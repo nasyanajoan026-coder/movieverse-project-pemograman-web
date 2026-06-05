@@ -5,22 +5,16 @@ require_once __DIR__ . '/../includes/helpers.php';
 
 requireAdmin();
 
-$pdo = getDb();
-
 // Handle delete
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'delete') {
-    if (!verifyCsrf($_POST['csrf_token'] ?? '')) {
-        setFlash('error', 'Invalid CSRF token.');
-    } else {
-        $id = (int)($_POST['movie_id'] ?? 0);
-        if ($id > 0) {
-            // Cascade: remove from movie_genres, reviews, favorites first
-            $pdo->prepare("DELETE FROM movie_genres WHERE movie_id = ?")->execute([$id]);
-            $pdo->prepare("DELETE FROM reviews WHERE movie_id = ?")->execute([$id]);
-            $pdo->prepare("DELETE FROM favorites WHERE movie_id = ?")->execute([$id]);
-            $pdo->prepare("DELETE FROM movies WHERE id = ?")->execute([$id]);
-            setFlash('success', 'Film deleted successfully.');
-        }
+    verifyCsrf();
+    $id = (int)($_POST['movie_id'] ?? 0);
+    if ($id > 0) {
+        $pdo->prepare("DELETE FROM movie_genres WHERE movie_id = ?")->execute([$id]);
+        $pdo->prepare("DELETE FROM reviews WHERE movie_id = ?")->execute([$id]);
+        $pdo->prepare("DELETE FROM favorites WHERE movie_id = ?")->execute([$id]);
+        $pdo->prepare("DELETE FROM movies WHERE id = ?")->execute([$id]);
+        setFlash('success', 'Film deleted successfully.');
     }
     redirect('/admin/movies.php');
 }
@@ -63,14 +57,14 @@ include __DIR__ . '/../includes/header.php';
     <div class="admin-content">
       <div class="admin-top">
         <h1 class="admin-page-title">Films</h1>
-        <a href="/admin/movie-form.php" class="btn btn-primary">+ Add Film</a>
+        <a href="<?= BASE_URL ?>/admin/movie-form.php" class="btn btn-primary">+ Add Film</a>
       </div>
 
       <!-- Search bar -->
       <form method="GET" class="admin-search-form">
         <input type="text" name="q" value="<?= e($q) ?>" placeholder="Search films…" class="admin-search-input">
         <button type="submit" class="btn btn-ghost">Search</button>
-        <?php if ($q): ?><a href="/admin/movies.php" class="btn btn-ghost">Clear</a><?php endif; ?>
+        <?php if ($q): ?><a href="<?= BASE_URL ?>/admin/movies.php" class="btn btn-ghost">Clear</a><?php endif; ?>
       </form>
 
       <p class="admin-count"><?= $totalCount ?> film<?= $totalCount !== 1 ? 's' : '' ?><?= $q ? " matching \"".e($q)."\"" : '' ?></p>
@@ -100,7 +94,7 @@ include __DIR__ . '/../includes/header.php';
                   </div>
                 </td>
                 <td>
-                  <a href="/movie.php?id=<?= $m['id'] ?>" target="_blank" class="table-link">
+                  <a href="<?= BASE_URL ?>/movie.php?id=<?= $m['id'] ?>" target="_blank" class="table-link">
                     <?= e($m['title']) ?>
                   </a>
                 </td>
@@ -113,7 +107,7 @@ include __DIR__ . '/../includes/header.php';
                 </td>
                 <td><?= $m['review_count'] ?></td>
                 <td class="action-cell">
-                  <a href="/admin/movie-form.php?id=<?= $m['id'] ?>" class="btn btn-ghost btn-sm">Edit</a>
+                   <a href="<?= BASE_URL ?>/admin/movie-form.php?id=<?= $m['id'] ?>" class="btn btn-ghost btn-sm">Edit</a>
                   <form method="POST" class="inline-form">
                     <input type="hidden" name="csrf_token" value="<?= csrfToken() ?>">
                     <input type="hidden" name="movie_id" value="<?= $m['id'] ?>">
