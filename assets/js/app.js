@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── SEARCH TOGGLE ─────────────────────────────────
     const searchToggle = document.getElementById('searchToggle');
-    const searchBar    = document.getElementById('searchBar');
+    const searchBar = document.getElementById('searchBar');
     if (searchToggle && searchBar) {
         searchToggle.addEventListener('click', () => {
             searchBar.classList.toggle('open');
@@ -39,7 +39,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ── HAMBURGER / MOBILE MENU ───────────────────────
-    const hamburger  = document.getElementById('hamburger');
+    const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobileMenu');
     if (hamburger && mobileMenu) {
         hamburger.addEventListener('click', () => {
@@ -54,17 +54,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── HORIZONTAL SCROLL ROWS ────────────────────────
     document.querySelectorAll('.scroll-row-wrap').forEach(wrap => {
-        const row      = wrap.querySelector('.scroll-row');
-        const btnLeft  = wrap.querySelector('.scroll-btn-left');
+        const row = wrap.querySelector('.scroll-row');
+        const btnLeft = wrap.querySelector('.scroll-btn-left');
         const btnRight = wrap.querySelector('.scroll-btn-right');
         if (!row) return;
 
         const scroll = dir => { row.scrollBy({ left: dir * 500, behavior: 'smooth' }); };
-        btnLeft?.addEventListener('click',  () => scroll(-1));
+        btnLeft?.addEventListener('click', () => scroll(-1));
         btnRight?.addEventListener('click', () => scroll(1));
 
         const updateBtns = () => {
-            if (btnLeft)  btnLeft.style.display  = row.scrollLeft < 10 ? 'none' : '';
+            if (btnLeft) btnLeft.style.display = row.scrollLeft < 10 ? 'none' : '';
             if (btnRight) btnRight.style.display = (row.scrollLeft + row.clientWidth >= row.scrollWidth - 10) ? 'none' : '';
         };
         row.addEventListener('scroll', updateBtns, { passive: true });
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ── STAR RATING INPUT ──────────────────────────────
     const starInputs = document.querySelectorAll('.star-rating-input input');
-    const ratingVal  = document.getElementById('ratingValue');
+    const ratingVal = document.getElementById('ratingValue');
     starInputs.forEach(input => {
         input.addEventListener('change', () => {
             if (ratingVal) ratingVal.textContent = input.value;
@@ -123,7 +123,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const csrfToken = csrfTokenEl ? csrfTokenEl.value : '';
 
         try {
-            const res = await fetch('/movieverse/api/favorite.php', {
+            const res = await fetch((window.BASE_URL || '') + '/api/favorite.php', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                 body: `movie_id=${movieId}&csrf_token=${encodeURIComponent(csrfToken)}`
@@ -176,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    
+
 
     // ── REVIEW DELETE (AJAX) ──────────────────────────
     document.querySelectorAll('[data-delete-review]').forEach(btn => {
@@ -184,17 +184,17 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!confirm('Delete this review?')) return;
             const reviewId = btn.dataset.deleteReview;
             try {
-                const res = await fetch('/api/review.php', {
+                const res = await fetch((window.BASE_URL || '') + '/api/review.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
                     body: `action=delete&review_id=${reviewId}&csrf_token=${encodeURIComponent(document.getElementById('csrfToken')?.value || '')}`
                 });
                 const data = await res.json();
-                if (data.success) {
+                if (data.status === 'deleted') {
                     document.getElementById(`review-${reviewId}`)?.remove();
-                    showToast('Review deleted', 'success');
+                    showToast(data.message || 'Review deleted', 'success');
                 } else {
-                    showToast(data.message || 'Something went wrong', 'error');
+                    showToast(data.error || 'Something went wrong', 'error');
                 }
             } catch (e) {
                 showToast('Something went wrong', 'error');
@@ -207,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
         btn.addEventListener('click', () => {
             const reviewId = btn.dataset.editReview;
             const editForm = document.getElementById(`editForm-${reviewId}`);
-            const textEl   = document.getElementById(`reviewText-${reviewId}`);
+            const textEl = document.getElementById(`reviewText-${reviewId}`);
             if (editForm && textEl) {
                 editForm.classList.toggle('hidden');
                 textEl.classList.toggle('hidden');
@@ -271,7 +271,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    
+
     // ── TOAST NOTIFICATION ───────────────────────────
     window.showToast = (message, type = 'info') => {
         const toast = document.createElement('div');

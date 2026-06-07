@@ -174,24 +174,6 @@ INSERT INTO `movie_genres` (`movie_id`, `genre_id`) VALUES
 -- --------------------------------------------------------
 
 --
--- Stand-in structure for view `movie_stats`
--- (See below for the actual view)
---
-CREATE TABLE `movie_stats` (
-`id` int(11)
-,`title` varchar(200)
-,`year` year(4)
-,`poster_url` varchar(500)
-,`review_count` bigint(21)
-,`avg_rating` decimal(4,1)
-,`favorite_count` bigint(21)
-,`genres` mediumtext
-,`created_at` timestamp
-);
-
--- --------------------------------------------------------
-
---
 -- Table structure for table `reviews`
 --
 
@@ -259,14 +241,7 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `bio`, `avat
 (4, 'movienerd', 'nerd@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'Watched 500+ films and counting.', NULL, '2026-06-04 06:58:05'),
 (5, 'reelcritic', 'critic@example.com', '$2y$10$92IXUNpkjO0rOQ5byMi.Ye4oKoEa3Ro9llC/.og/at2.uheWG/igi', 'member', 'Film critic and writer. Specializing in drama and world cinema.', NULL, '2026-06-04 06:58:05');
 
--- --------------------------------------------------------
 
---
--- Structure for view `movie_stats`
---
-DROP TABLE IF EXISTS `movie_stats`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `movie_stats`  AS SELECT `m`.`id` AS `id`, `m`.`title` AS `title`, `m`.`year` AS `year`, `m`.`poster_url` AS `poster_url`, count(distinct `r`.`id`) AS `review_count`, coalesce(round(avg(`r`.`rating`),1),0) AS `avg_rating`, count(distinct `f`.`user_id`) AS `favorite_count`, group_concat(distinct `g`.`name` order by `g`.`name` ASC separator ', ') AS `genres`, `m`.`created_at` AS `created_at` FROM ((((`movies` `m` left join `reviews` `r` on(`m`.`id` = `r`.`movie_id`)) left join `favorites` `f` on(`m`.`id` = `f`.`movie_id`)) left join `movie_genres` `mg` on(`m`.`id` = `mg`.`movie_id`)) left join `genres` `g` on(`mg`.`genre_id` = `g`.`id`)) GROUP BY `m`.`id` ;
 
 --
 -- Indexes for dumped tables

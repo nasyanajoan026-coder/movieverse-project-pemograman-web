@@ -7,9 +7,15 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// Site base URL — adjust if deployed to a subfolder
+// Site base URL — auto-detect based on environment
 if (!defined('BASE_URL')) {
-    define('BASE_URL', 'http://localhost/movieverse');
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    if ($host === 'localhost' || str_starts_with($host, 'localhost:') || $host === '127.0.0.1') {
+        define('BASE_URL', $scheme . '://' . $host . '/movieverse');
+    } else {
+        define('BASE_URL', $scheme . '://' . $host);
+    }
 } 
 
 /**

@@ -25,8 +25,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($user && password_verify($password, $user['password'])) {
             loginUser($user);
             setFlash('success', 'Welcome back, ' . $user['username'] . '!');
-            $redirect = $_GET['redirect'] ?? '/index.php';
-            header('Location: ' . BASE_URL . $redirect);
+            $redirect = $_GET['redirect'] ?? 'index.php';
+            header('Location: ' . BASE_URL . '/' . $redirect);
             exit;
         } else {
             $errors[] = 'Invalid username/email or password.';

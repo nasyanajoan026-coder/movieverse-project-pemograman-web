@@ -4,12 +4,20 @@
 // Edit these values to match your server
 // ================================================
 if (!defined('BASE_URL')) {
-    define('BASE_URL', 'http://localhost/movieverse');
+    // Auto-detect: if running on hosting, use the domain; otherwise use localhost
+    $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
+    $host = $_SERVER['HTTP_HOST'] ?? 'localhost';
+    if ($host === 'localhost' || str_starts_with($host, 'localhost:') || $host === '127.0.0.1') {
+        define('BASE_URL', $scheme . '://' . $host . '/movieverse');
+    } else {
+        // On hosting (movieverse.page.gd), no subfolder needed
+        define('BASE_URL', $scheme . '://' . $host);
+    }
 }
-define('DB_HOST', 'localhost');
-define('DB_USER', 'root');        // Change to your MySQL username
-define('DB_PASS', '');            // Change to your MySQL password
-define('DB_NAME', 'movieverse');
+define('DB_HOST', 'sql212.infinityfree.com');
+define('DB_USER', 'if0_42095667');
+define('DB_PASS', 'MovieVerse123');
+define('DB_NAME', 'if0_42095667_db_movieverse');
 define('DB_CHARSET', 'utf8mb4');
 
 // Establish PDO connection
